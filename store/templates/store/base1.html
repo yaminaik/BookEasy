@@ -1,0 +1,253 @@
+{% load static %}
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>BOOKSTORE</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <link rel="stylesheet" href="{% static 'css/animate.css' %}">
+    
+    <link rel="stylesheet" href="{% static 'css/owl.carousel.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/owl.theme.default.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/magnific-popup.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <link rel="stylesheet" href="{% static 'css/flaticon.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style3.css' %}">
+     <link rel="stylesheet" href="{% static 'css/main.css' %}">
+   
+  </head>
+<body>
+	<div class="container">
+    {% if user.is_authenticated %}
+		  {% block content %} {% endblock  %}
+    {% else %}
+      <p>Login<a href="{% url 'login' %}">here</a></p>
+    {% endif %}
+    
+	</div>
+
+	<script src="{% static 'js/jquery.min.js' %}"></script>
+  <script src="{% static 'js/jquery-migrate-3.0.1.min.js' %}"></script>
+  <script src="{% static 'js/popper.min.js' %}"></script>
+  <script src="{% static 'js/bootstrap.min.js' %}"></script>
+  <script src="{% static 'js/jquery.easing.1.3.js' %}"></script>
+  <script src="{% static 'js/jquery.waypoints.min.js' %}"></script>
+  <script src="{% static 'js/jquery.stellar.min.js' %}"></script>
+  <script src="{% static 'js/owl.carousel.min.js' %}"></script>
+  <script src="{% static 'js/jquery.magnific-popup.min.js' %}"></script>
+  <script src="{% static 'js/jquery.animateNumber.min.js' %}"></script>
+  <script src="{% static 'js/scrollax.min.js' %}"></script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBVWaKrjvy3MaE7SQ74_uJiULgl1JY0H2s&sensor=false"></script>
+  <script src="{% static 'js/google-map.js' %}"></script>
+  <script src="{% static 'js/main.js' %}"></script>
+  <script src="{% static 'js/cart.js' %}"></script>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
+
+
+
+  <script type="text/javascript">
+    var user = '{{request.user}}'
+
+    function getToken(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = cookies[i].trim();
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    var csrftoken = getToken('csrftoken');
+  
+  </script>
+
+
+   <script>
+      var options = {
+          "key": "rzp_test_a6SQyxPY7IfF2e", // Enter the Key ID generated from the Dashboard
+          "amount": "{{order.get_cart_total}}"* 100, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+          "currency": "INR",
+          "name": "Books",
+          "description": "Test Transaction",
+          "image": "https://example.com/your_logo",
+          "order_id": "{{ payment.id }}", //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
+
+          "handler": function (response){
+            if (typeof response.razorpay_payment_id == 'undefined' ||  response.razorpay_payment_id < 1) {
+              redirect_url = '/remain';
+            } else {
+              redirect_url = '/success';
+            }
+            location.href = redirect_url
+              
+          },
+          "prefill": {
+              "name": "Yami Naik",
+              "email": "yaminaik9172yahoo.com",
+              "contact": "9978314804"
+          },
+          "notes": {
+              "address": "Razorpay Corporate Office"
+          },
+          "theme": {
+              "color": "#3399cc"
+          }
+      };
+      var rzp1 = new Razorpay(options);
+      rzp1.on('payment.failed', function (response){
+              alert(response.error.code);
+              alert(response.error.description);
+              alert(response.error.source);
+              alert(response.error.step);
+              alert(response.error.reason);
+              alert(response.error.metadata.order_id);
+              alert(response.error.metadata.payment_id);
+      });
+      document.getElementById('rzp-button1').onclick = function(e){
+          rzp1.open();
+          e.preventDefault();
+      }
+  </script>
+
+
+
+   <script type="text/javascript">
+      var shipping = '{{order.shipping}}'
+      var total = '{{order.get_cart_total}}'
+
+      if (shipping == 'False'){
+        document.getElementById('shipping-info').innerHTML = ''
+      }
+
+      if (user != 'AnonymousUser'){
+        document.getElementById('user-info').innerHTML = ''
+       }
+
+      if (shipping == 'False' && user != 'AnonymousUser'){
+        //Hide entire form if user is logged in and shipping is false
+          document.getElementById('form-wrapper').classList.add("hidden");
+          //Show payment if logged in user wants to buy an item that does not require shipping
+            document.getElementById('payment-info').classList.remove("hidden");
+      }
+
+      var form = document.getElementById('form')
+      form.addEventListener('submit', function(e){
+          e.preventDefault()
+          console.log('Form Submitted...')
+          document.getElementById('form-button').classList.add("hidden");
+          document.getElementById('payment-info').classList.remove("hidden");
+        })
+
+        document.getElementById('rzp-button1').addEventListener('click', function(e){
+          submitFormData()
+         
+        })
+        
+        function submitFormData(){
+          console.log('Payment button clicked')
+           alert("YOUR ORDER ID:"+{{order.id}}+"Please Remember Your Id")
+          
+          var userFormData = {
+          'name':null,
+          'email':null,
+          'total':total,
+        }
+
+        var shippingInfo = {
+          'address':null,
+          'city':null,
+          'state':null,
+          'zipcode':null,
+        }
+
+        if (shipping != 'False'){
+            shippingInfo.address = form.address.value
+            shippingInfo.city = form.city.value
+            shippingInfo.state = form.state.value
+            shippingInfo.zipcode = form.zipcode.value
+          }
+
+          if (user == 'AnonymousUser'){
+            userFormData.name = form.name.value
+            userFormData.email = form.email.value
+          }
+
+          console.log('Shipping Info:', shippingInfo)
+          console.log('User Info:', userFormData)
+
+          var url = "/process/"
+          fetch(url, {
+            method:'POST',
+            headers:{
+              'Content-Type':'applicaiton/json',
+              'X-CSRFToken':csrftoken,
+            }, 
+            body:JSON.stringify({'form':userFormData, 'shipping':shippingInfo}),
+            
+          })
+          .then((response) => response.json())
+      }
+    </script>
+
+    <script>
+      $('#trackerForm').submit(function(event) {
+          $('#items').empty();
+          var formData = {
+              'orderId': $('input[name=orderId]').val(),
+              'email': $('input[name=email]').val(),
+              'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val()
+          };
+          $.ajax({
+                  type: 'POST',
+                  url: '/success/',
+                  data: formData,
+                  encode: true
+              })
+              .done(function(data) {
+                  console.log(data)
+                  updates = JSON.parse(data);
+                  if (updates.length > 0 & updates != {}) 
+                  {
+                      for (i = 0; i < updates.length; i++) 
+                      {
+                          let text = updates[i]['text'];
+                          let time = updates[i]['time'];
+                          mystr = `<li class="list-group-item d-flex justify-content-between align-items-center">
+                          ${text}
+                          <span class="badge badge-primary badge-pill">${time}</span>
+                      </li>`
+                          $('#items').append(mystr);
+                      }
+                  } 
+                  else
+                  {
+                      mystr = `<li class="list-group-item d-flex justify-content-between align-items-center">
+                          Sorry, We are not able to fetch this order id and email. Make sure to type correct order Id </li>`
+                      $('#items').append(mystr);
+                  }
+              });
+          event.preventDefault();
+      });
+</script>>
+
+   
+
+</body>
+
+</html>

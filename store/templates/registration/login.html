@@ -1,0 +1,29 @@
+
+{% extends "store/base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% block content %}
+	
+           <div class="login-content">
+                <div class="login-image">
+                    <img class="login-img" src="{%  static 'images/book2.png' %}" alt="Book Image" >
+                </div>
+                
+                <div class="login-form" >
+                    <form class="form-group" method="POST">
+                        {% csrf_token %}
+                        {{ form|crispy }}
+                         <p>Dont have an account?Create One<a href="{% url 'signup' %}">here</a></p>
+                       <button type="submit" class="btn btn-success">Login</button>
+                        {% if messages %}
+                            {% for msg in messages %}
+                                <b>{{msg}}</b>
+                            {% endfor %}
+                        {% endif %}
+                    
+
+                    </form>
+                </div>
+            </div>
+      
+{% endblock content %}
